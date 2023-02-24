@@ -12,7 +12,7 @@
             import * as THREE from "https://web.cs.manchester.ac.uk/three/three.js-master/build/three.module.js";
             // Your Javascript will go here. 
             var camera, scene, renderer;    
-            var geometry, mesh, material, uniforms;
+            var geometry, mesh, material;
 
             var clock = 0.0;
             // insert a call to an initialisation function
@@ -20,13 +20,13 @@
                 scene = new THREE.Scene();
 
                 //  QUESTION 1 PerspectiveCamera:
-                // The first two arguments shows the field of view for the camera, the aspect ratio of the image,    
+                // The first two arguments shows the field of view for the camera, the aspect ratio of the image.
                 // the final two values are the near and far values of the lengths at which the camera can see.
                 // For example: something under 0.1 and further 1000 should be omitted
                 camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
                 // QUESTION2 What happens:
-                // if the field of view changes,
-                // if the aspect ratio changes, the image will appear stretched or shrunk
+                // If the field of view changes increases, the object could appear smaller, otherwise it will perform bigger.
+                // If the aspect ratio changes, the image could be stretched or shrunk
                 // The camera only renders objects between near and far (0.1 and 1000 respectively) which are within the field of view
                 
                 // QUESTION 3  the value of camera.position.z:
@@ -40,22 +40,18 @@
                 renderer.setClearColor(0x000000, 1.0);
 
                 // QUESTION 5 renderer.setSize:
-                // Changing these values will change the 'screen size' essentially this changes the size of the viewing window.
+                // The "screen size" will change if these values are changed, which basically changes the viewing window's size.
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 document.body.appendChild(renderer.domElement);
                 shaderCube();
             }
 
+            // add the cube
             function shaderCube(){
-                uniforms = {
-                    time: {type: 'float', value: clock}
-                }
-
                 // QUESTION 6 BoxGeometry:
                 // Changing these 3 parameters will change the length of each edge(x,y,z respectively) of the box.
                 var geometry = new THREE.BoxGeometry(2, 1, 1);
                 var material = new THREE.ShaderMaterial({
-                    uniforms: uniforms,
                     fragmentShader: fragmentShader(),
                     vertexShader: vertexShader(),
                 })
@@ -67,10 +63,9 @@
             // stub function
             function fragmentShader(){
                 // QUESTION 8 change the cuboid’s colour:
-                // changing gl_FragColor will change who the render colours fragments
-                // For example: we can use vec4(with float) to edit what colour we want
+                // Changing gl_FragColor will change the render colours fragments
+                // For example: we can use vec4(with float) to edit what colour we want.
                 return `
-                    uniform float time;
                     varying vec3 vposInterpolated;
                     
                     void main() {
@@ -81,9 +76,8 @@
 
             function vertexShader(){
                 return `
-                    uniform float time;
                     vec4 p;
-                    varying vec3 vposInterpolated;
+                    varying vec3 vposInterpolated;                    
                     void main() {
                     p = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                     gl_Position= p;
@@ -95,8 +89,7 @@
             function animate(){
                 renderer.render(scene, camera);
                 requestAnimationFrame(animate);
-                clock += 0.01;
-                uniforms.time.value = (Math.sin(clock)+1.0)/2.0;
+
                 // QUESTION 7 speed up:
                 // Enlarging the rotation values for x and y (see below)can speed up cuboid’s motion
                 mesh.rotation.x += 0.011;
