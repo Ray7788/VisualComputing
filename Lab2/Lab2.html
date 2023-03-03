@@ -39,15 +39,15 @@
                 const loader = new THREE.TextureLoader();
 
                 // Change the observer’s viewpoint by clicking and dragging.
-                controls = new OrbitControls(camera, renderer.domElement);
+                controls = new OrbitControls(camera, renderer.domElement);                  // The HTMLDOMElement used to listen for mouse / touch events. 
                 controls.autoRotate = true;
 
                 // Illumination
                 // Diffuse light to give some background illumination
-                const ambient = new THREE.AmbientLight(0x222222);
+                const ambient = new THREE.AmbientLight(0x222222,2);
                 scene.add(ambient);
                 // a source of light for sun
-                const pointlight = new THREE.PointLight(0xffffff,2);
+                const pointlight = new THREE.PointLight(0xffffff,1);
                 pointlight.castShadow = true;
                 pointlight.position.set(0,0,0);
                 scene.add(pointlight);
@@ -107,7 +107,8 @@
                 // Draw the orbit
                 const points = curve.getPoints(200);
                 const geometry = new THREE.BufferGeometry().setFromPoints(points);
-                const material = new THREE.LineBasicMaterial( { color: 0x333333, transparent: true, opacity: 0.5 } );
+                // A material for drawing wireframe-style geometries.
+                const material = new THREE.LineBasicMaterial({color: 0xffffff});
                 const orbit = new THREE.Line(geometry, material);
 
                 // Create a line object using the geometry and material
