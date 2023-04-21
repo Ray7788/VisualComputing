@@ -110,15 +110,16 @@ int main(int argc, char** argv) {
     int threshold = 70;
 
     String imageName("horizon0.png"); // by default image
-    if (argc > 1){
+    if (argc > 1) {
         imageName = argv[1]; //get data path of image
-    } else if (argc < 2) {
+    }
+    else if (argc < 2) {
         printf("Image path required\n");
         return -1;
     }
 
     image = imread(samples::findFile(imageName), IMREAD_GRAYSCALE); // Load an image
-    if (image.empty()){
+    if (image.empty()) {
         // if there's no image, exit
         printf("Cannot read the image!\n");
         return -1;
@@ -129,7 +130,7 @@ int main(int argc, char** argv) {
 
     GaussianBlur(image, image_blur, Size(3, 3), 0);     // Blur
     Canny(image_blur, canny, 70, 123, 3);   // Apply a Canny filter on the image
-    cvtColor(canny, image_gray, COLOR_GRAY2BGR, 0);     // Convert the image to Gray
+    cvtColor(image_blur, image_gray, COLOR_GRAY2BGR, 0);     // Convert the image to Gray
 
     // Display canny edge detected image
     string outputCANNYname = imageName.substr(0, imageName.find_last_of(".")) + "_canny.png";
@@ -147,10 +148,10 @@ int main(int argc, char** argv) {
     string outputHoughLinename = imageName.substr(0, imageName.find_last_of(".")) + "HoughLine.png";
 
     // Draw the lines
-    for (size_t i = 0; i < linesP.size(); i++){
+    for (size_t i = 0; i < linesP.size(); i++) {
         Vec4i l = linesP[i];
         //defining the startand end coordinates for line segments.
-        line(houghLine, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0,0,255), 3, LINE_AA);
+        line(houghLine, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 3, LINE_AA);
 
         // For part3
         int length = sqrt(((l[2] - l[0]) * (l[2] - l[0])) + ((l[3] - l[1]) * (l[3] - l[1])));
@@ -185,7 +186,8 @@ int main(int argc, char** argv) {
                 removed_shortlines.push_back((l));
                 line(short_lines_removed, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 1, LINE_AA);
             }
-        }else {
+        }
+        else {
             if (length >= average_distance + 30) {
                 removed_shortlines.push_back((l));
                 line(short_lines_removed, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 1, LINE_AA);
@@ -211,9 +213,11 @@ int main(int argc, char** argv) {
 
         if (horizontal == 0) {
             tan = 10;
-        }else if (vertical == 0) {
+        }
+        else if (vertical == 0) {
             tan = 0;
-        }else {
+        }
+        else {
             // inverse tangent line
             tan = atan2(l[3] - l[1], l[2] - l[0]);
         }
