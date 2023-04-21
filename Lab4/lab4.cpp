@@ -9,7 +9,6 @@
 using namespace cv;
 using namespace std;
 
-
 //Polynomial regression function
 vector<double> fitPoly(vector<Point> points, int n)
 {
@@ -28,7 +27,7 @@ vector<double> fitPoly(vector<Point> points, int n)
     }
 
     //Augmented matrix
-    //double matrixSystem[n + 1][n + 2];
+    // Dynamic memory allocation for double matrixSystem[n + 1][n + 2];
     double** matrixSystem = new double* [n + 1];
     for (int i = 0; i < n + 1; i++) {
         matrixSystem[i] = new double[n + 2];
@@ -50,9 +49,10 @@ vector<double> fitPoly(vector<Point> points, int n)
     }
 
     //Array that holds all the coefficients
-    //double coeffVec[n + 2] = {};  // the "= {}" is needed in visual studio, but not in Linux
-    double* coeffVec = new double[n + 2]();
 
+    // Dynamic memory allocation for double coeffVec[n + 2] = {};  
+    // the "= {}" is needed in visual studio, but not in Linux
+    double* coeffVec = new double[n + 2]();
     //Gauss reduction
     for (int i = 0; i <= n - 1; i++)
         for (int k = i + 1; k <= n; k++)
@@ -79,6 +79,13 @@ vector<double> fitPoly(vector<Point> points, int n)
     vector<double> result = vector<double>();
     for (int i = 0; i < n + 1; i++)
         result.push_back(coeffVec[i]);
+
+    for (int i = 0; i < n + 1; i++) {
+        delete[] matrixSystem[i];
+    }
+    delete[] matrixSystem;
+    delete[] coeffVec;
+
     return result;
 }
 
@@ -93,41 +100,42 @@ Point pointAtX(vector<double> coeff, double x)
 }
 
 
-Mat image, image_gray;
-Mat image_blur, dst, houghline, canny, short_lines_removed, filtering_vertical, horizon;
+// initial image
+Mat image, image_gray, image_blur, dst, houghline, canny, short_lines_removed, filtering_vertical, horizon;
 const char* window_name = "horizon Image";
 
 int main(int argc, char** argv) {
     //Binary threshold variable
     int threshold = 70;
 
-    String imageName("horizon2.png"); // by default image
-    if (argc > 1)
-    {
-        imageName = argv[1]; //get data path of image
-    }
-    image = imread(samples::findFile(imageName), IMREAD_GRAYSCALE); // Load an image
-    if (image.empty())
-    {
-        cout << "Cannot read the image: " << imageName << std::endl; // if there's no image, exit
+    String imageName("horizonCNM.png"); // by default image
+    if (argc < 2) {
+        printf("Image path required\n");
         return -1;
     }
+
+    Mat image = imread(argv[1], IMREAD_UNCHANGED);
+    if (image.empty()) {
+        printf("Something went wrong\n");
+        return -1;
+    }
+
+    //imshow("gray image", image);
+    //waitKey(0);
     // namedWindow( window_name, WINDOW_AUTOSIZE ); // Create a window to display results
 
     GaussianBlur(image, image_blur, Size(3, 3), 0);
-
     Canny(image_blur, canny, 70, 123, 3);
-
     cvtColor(canny, image_gray, COLOR_GRAY2BGR, 0); // Convert the image to Gray
 
     // Display canny edge detected image
-    imshow("gray image", image);
+    imshow("Canny edge image", canny);
     waitKey(0);
-    imshow("Canny edge detection", image_gray);
-    waitKey(0);
+
 
     int maximum = 0, minimum = 0, average_distance = 0, total_distance = 0, difference = 0;
-
+    /////////////////////////////////////////////////////////////////////////////////////////
+    // 2: The Probabilistic Hough Line Transform
     houghline = image_gray.clone();
     vector<Vec4i> linesP; // will hold the results of the detection
     HoughLinesP(canny, linesP, 1, CV_PI / 180, 50, 0, 3); // runs the actual detection
@@ -136,6 +144,7 @@ int main(int argc, char** argv) {
     {
         Vec4i l = linesP[i];
         line(houghline, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 3, LINE_AA);
+
         int length = sqrt(((l[2] - l[0]) * (l[2] - l[0])) + ((l[3] - l[1]) * (l[3] - l[1])));
         if (maximum < length) {
             maximum = length;
@@ -148,6 +157,9 @@ int main(int argc, char** argv) {
     imshow("Detected Lines (in red) - Probabilistic Line Transform", houghline);
     waitKey(0);
 
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+    // an image with the short lines removed
     short_lines_removed = image_gray.clone();
     average_distance = total_distance / linesP.size();
     difference = maximum - minimum;
