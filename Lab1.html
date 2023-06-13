@@ -26,7 +26,7 @@
                 camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
                 // QUESTION2 What happens:
                 // If the field of view changes increases, the object could appear smaller, otherwise it will perform bigger.
-                // If the aspect ratio changes, the image could be stretched or shrunk
+                // If the aspect ratio changes, the image could be stretched or shrunk smilarly.
                 // The camera only renders objects between near and far (0.1 and 1000 respectively) which are within the field of view
                 
                 // QUESTION 3  the value of camera.position.z:
@@ -63,7 +63,7 @@
             // stub function
             function fragmentShader(){
                 // QUESTION 8 change the cuboid’s colour:
-                // Changing gl_FragColor will change the render colours fragments
+                // Changing gl_FragColor will change the colours fragments
                 // For example: we can use vec4(with float) to edit what colour we want.
                 return `
                     varying vec3 vposInterpolated;
@@ -91,7 +91,7 @@
                 requestAnimationFrame(animate);
 
                 // QUESTION 7 speed up:
-                // Enlarging the rotation values for x and y (see below)can speed up cuboid’s motion
+                // Enlarging the rotation values for x and y (see below)can speed up cuboid’s motion, otherwise it will slow down.
                 mesh.rotation.x += 0.011;
                 mesh.rotation.y += 0.013;
             }
