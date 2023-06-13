@@ -1,0 +1,144 @@
+<html>
+    <head>
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <script type = "module">
+            import * as THREE from "https://web.cs.manchester.ac.uk/three/three.js-master/build/three.module.js";
+            import { OrbitControls } from "https://web.cs.manchester.ac.uk/three/three.js-master/examples/jsm/controls/OrbitControls.js";
+            // Your Javascript will go here. 
+            var camera, scene, renderer;    
+
+            var sunGeometry, sunMesh, sunMaterial;
+            var earthGeometry, earthMesh, earthMaterial;
+            var moonGeometry, moonMesh, moonMaterial;
+
+            var earthSystem, controls;
+
+            var  curve;
+            var time, t;
+            // var point;
+
+            function init(){
+                scene = new THREE.Scene();
+
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+                camera.position.set(0, 30, 500);
+
+                renderer = new THREE.WebGLRenderer(); 
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setClearColor(0x000000, 1.0);
+                document.body.appendChild(renderer.domElement);
+
+                //  texture loader for images
+                const loader = new THREE.TextureLoader();
+
+                // Change the observer’s viewpoint by clicking and dragging.
+                controls = new OrbitControls(camera, renderer.domElement);                  // The HTMLDOMElement used to listen for mouse / touch events. 
+                controls.autoRotate = true;
+
+                // Illumination
+                // Diffuse light to give some background illumination
+                const ambient = new THREE.AmbientLight(0x222222,2);
+                scene.add(ambient);
+                // a source of light for sun
+                const pointlight = new THREE.PointLight(0xffffff,1);
+                pointlight.castShadow = true;
+                pointlight.position.set(0,0,0);
+                scene.add(pointlight);
+
+                // Sun
+                sunGeometry = new THREE.SphereGeometry(109, 400, 200)
+                sunMaterial = new THREE.MeshStandardMaterial(
+                    {
+                        emissive: 0xffd700,
+                        emissiveMap: loader.load("https://www.solarsystemscope.com/textures/download/2k_sun.jpg"),
+                        emissiveIntensity: 1,
+                        wireframe: false
+                    });
+                sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
+                sunMesh.position.set(100,0,0);
+                scene.add(sunMesh); 
+
+                // Earth
+                earthGeometry = new THREE.SphereGeometry(25, 50, 50);
+                earthMaterial = new THREE.MeshPhongMaterial(
+                    {
+                        map: loader.load("https://upload.wikimedia.org/wikipedia/commons/a/ac/Earthmap1000x500.jpg")
+                    });
+                earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+                earthMesh.castShadow = true;
+
+                // earth.position.x = earthOrbitRadius * sin(2 * π * w * t);
+                // earth.position.y = earthOrbitRadius * cos(2 * π * w * t);
+
+                // Moon
+                moonGeometry = new THREE.SphereGeometry(5, 40, 20);
+                moonMaterial = new THREE.MeshPhongMaterial(
+                    {
+                        map: loader.load("https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_poles_1k.jpg")
+                    });
+                moonMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+                //  orbitRadius is 50;
+                moonMesh.position.set(50, 0, 0);
+                moonMesh.castShadow = true;
+
+                // The earth and moon will be grouped together into one object before being added to the scene.
+                earthSystem = new THREE.Group(); 
+                earthSystem.add(earthMesh);
+                earthSystem.add(moonMesh);
+                earthSystem.position.set(-300, 0, 0);
+                scene.add(earthSystem);    
+            
+                // Get the earth-moon position by reading a point from the EllipseCurve object 
+                curve = new THREE.EllipseCurve(
+                    0,  0,            // ax, aY
+                    250, 300,           // xRadius, yRadius
+                    0,  2 * Math.PI,  // aStartAngle, aEndAngle
+                    false,            // aClockwise
+                    0                 // aRotation
+                );
+
+                // Draw the orbit
+                const points = curve.getPoints(200);
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                // A material for drawing wireframe-style geometries.
+                const material = new THREE.LineBasicMaterial({color: 0xffffff});
+                const orbit = new THREE.Line(geometry, material);
+
+                // Create a line object using the geometry and material
+                const ellipse = new THREE.Line(geometry, material);
+                // Rotate the line so it lies in the XZ plane instead of the default XY plane
+                orbit.rotateX(-Math.PI/2);
+                scene.add(orbit);
+            }
+
+            function animate(){
+                // Change the earth’s orbital speed.
+                time = 0.00001 * performance.now();
+                t = (time % 1);
+
+                let point = curve.getPoint(t);
+                // earthSystem’s x and z positions 
+                earthSystem.position.x = point.x;
+                earthSystem.position.z = point.y;
+
+                // Speed is the orbital speed of the moon
+                moonMesh.position.x = 50 * Math.cos(time * 100);
+                moonMesh.position.z = 50 * Math.sin(time * 100);
+
+                renderer.render(scene, camera);
+                requestAnimationFrame(animate);
+            }
+
+            init();
+            animate();
+
+        </script>
+     </body>
+</html>

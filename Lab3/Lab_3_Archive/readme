@@ -1,0 +1,19 @@
+fundus.tif
+This is taken from a set of images used to train and test algorithms for recognising the
+effects of diabetes on the retina. The ima of the processing is to identify the blood
+vessels.
+
+glaucoma.jpg
+This is an image taken from a set used to train ophthalmologists to recognise glaucoma.
+The aim of processing is to find the diffuse bright region towards the middle and
+the brighter area inside it.
+
+optic nerve head.jpg
+This was an image captured by a bespoke device that gives a tightly frames image of the 
+optic nerve head. The aim of processing is to find the outlines of the large, slightly 
+bright area and the smaller brighter area inside it.
+
+motorway.png
+This is an image taken off the internet of a motorway destination sign. Car manufacturers
+have deployed systems that read speed limit signs. A next step would be to read these
+signs. So the aim would be to find the white text.
